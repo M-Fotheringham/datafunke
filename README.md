@@ -1,9 +1,6 @@
 # datafunke
 ![datafunke](./docs/_figs/datafunks_crop.png)
 
-<br>
-<br>
-
 Get *funke* with data analysis.
 
 ## Installation
