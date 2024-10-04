@@ -1,8 +1,16 @@
+LICENSE
+README.md
 setup.py
 datafunks/__init__.py
 datafunks/anno_check.py
+datafunks/boxplotter.py
 datafunks/cox_plot.py
+datafunks/dynamic_query.py
+datafunks/exprTotal.py
+datafunks/get_annos.py
+datafunks/get_area.py
 datafunks/get_cell_coords.py
+datafunks/get_cell_counts.py
 datafunks/get_cell_den.py
 datafunks/get_cells.py
 datafunks/get_clin.py
@@ -11,6 +19,7 @@ datafunks/histogrammer.py
 datafunks/plot_cells.py
 datafunks/roc_plotter.py
 datafunks/scatterplotter.py
+datafunks/tdist_ogram.py
 datafunks.egg-info/PKG-INFO
 datafunks.egg-info/SOURCES.txt
 datafunks.egg-info/dependency_links.txt

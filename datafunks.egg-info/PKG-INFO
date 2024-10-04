@@ -4,6 +4,7 @@ Version: 0.1.0
 Summary: These modules are collections of scripts I've used over the years to perform basic analysis tasks in the database.
 Author: MF
 Requires-Python: <3.11
+License-File: LICENSE
 Requires-Dist: numpy
 Requires-Dist: pandas
 Requires-Dist: matplotlib
