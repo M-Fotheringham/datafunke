@@ -1,4 +1,6 @@
 # datafunke
+![datafunke](./docs/_figs/datafunks_crop.png)
+
 <br>
 <br>
 
