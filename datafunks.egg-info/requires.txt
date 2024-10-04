@@ -1,0 +1,9 @@
+numpy
+pandas
+matplotlib
+shapely
+geopandas
+holoviews
+datashader
+colorcet
+scipy
