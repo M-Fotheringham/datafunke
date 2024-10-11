@@ -22,6 +22,7 @@ def tdistogram(
     smoothed=True,
     altdb=None,
     plot=True,
+    prop=False,
 ):
 
     print("Counting cells...")
@@ -72,8 +73,22 @@ def tdistogram(
     # Exclude bins with 0.4mm^2 or less area
     data = data[data["area_mm"] > 0.4**2].reset_index(drop=True)
 
+    if prop:
+        if samplewise:
+            # Calculate proportion of each phenotype per sample
+            data["grouped_c"] = data.groupby(["sampleid", "tdist_microns"])[
+                "c"
+            ].transform(lambda x: x[data["exprphenotype"] != "Total"].sum())
+            data["prop"] = data["c"] / data["grouped_c"]
+        else:
+            # Calculate proportion of each phenotype per sample
+            data["grouped_c"] = data.groupby("tdist_microns")["c"].transform(
+                lambda x: x[data["exprphenotype"] != "Total"].sum()
+            )
+            data["prop"] = data["c"] / data["grouped_c"]
+
     if prob:
-        # Same shape as density, but different y axis scale
+
         if samplewise:
             # Calculate overall density per expr, per pheno, per sample
             grouped_den = data.groupby(["sampleid", "phenotype", "exprphenotype"])[
@@ -111,7 +126,7 @@ def tdistogram(
                     smoothed_y = np.interp(xl, loess_result[:, 0], loess_result[:, 1])
 
                     smoothed_df = pd.DataFrame(
-                        {"tdist_smoothed": xl, "fitted_density": smoothed_y}
+                        {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
                     )
 
                     smoothed_df["tdist_microns"] = (
@@ -161,7 +176,7 @@ def tdistogram(
                     smoothed_y = np.interp(xl, loess_result[:, 0], loess_result[:, 1])
 
                     smoothed_df = pd.DataFrame(
-                        {"tdist_smoothed": xl, "fitted_density": smoothed_y}
+                        {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
                     )
 
                     smoothed_df["tdist_microns"] = (
@@ -186,16 +201,20 @@ def tdistogram(
                 smoothed = []
                 for name, group in grouped:
                     tdist = group["tdist_microns"].values
-                    density = group["density_mm"].values
 
-                    loess_result = lowess(density, tdist, frac=0.15)
+                    if prop:
+                        y_vals = group["prop"].values
+                    else:
+                        y_vals = group["density_mm"].values
+
+                    loess_result = lowess(y_vals, tdist, frac=0.15)
 
                     xl = np.linspace(min(tdist), max(tdist), 1000)
 
                     smoothed_y = np.interp(xl, loess_result[:, 0], loess_result[:, 1])
 
                     smoothed_df = pd.DataFrame(
-                        {"tdist_smoothed": xl, "fitted_density": smoothed_y}
+                        {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
                     )
 
                     smoothed_df["tdist_microns"] = (
@@ -217,16 +236,20 @@ def tdistogram(
                 smoothed = []
                 for name, group in grouped:
                     tdist = group["tdist_microns"].values
-                    density = group["density_mm"].values
 
-                    loess_result = lowess(density, tdist, frac=0.15)
+                    if prop:
+                        y_vals = group["prop"].values
+                    else:
+                        y_vals = group["density_mm"].values
+
+                    loess_result = lowess(y_vals, tdist, frac=0.15)
 
                     xl = np.linspace(min(tdist), max(tdist), 1000)
 
                     smoothed_y = np.interp(xl, loess_result[:, 0], loess_result[:, 1])
 
                     smoothed_df = pd.DataFrame(
-                        {"tdist_smoothed": xl, "fitted_density": smoothed_y}
+                        {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
                     )
 
                     smoothed_df["tdist_microns"] = (
