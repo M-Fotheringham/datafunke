@@ -8,9 +8,10 @@ def dynamic_sql(
     all_reg=False,
     excl_ln=False,
     t_hist_step=None,
+    t_hist_type=None,
 ):
 
-    if t_hist_step is not None:
+    if (t_hist_step is not None) & (t_hist_type != "fractional reg"):
         # convert to pixels
         t_hist_step = t_hist_step * 2
 
@@ -82,9 +83,16 @@ def dynamic_sql(
         ln_sql = ""
 
     # Bin tdist to create histogram of areas, convert tdist to um
-    if t_hist_step is not None:
+    if t_hist_type == "fractional reg":
         t_hist_sql = f"""
-        floor(tdist/{t_hist_step})*{t_hist_step}/2 tdist_microns,
+        floor((tdist/(tdist - rdist))*100/{t_hist_step})*{t_hist_step} tdist_bin,
+        """
+        group_sql = (
+            f""", floor((tdist/(tdist - rdist))*100/{t_hist_step})*{t_hist_step}"""
+        )
+    elif t_hist_step is not None:
+        t_hist_sql = f"""
+        floor(tdist/{t_hist_step})*{t_hist_step}/2 tdist_bin,
         """
         group_sql = f""", floor(tdist/{t_hist_step})*{t_hist_step}/2"""
     else:

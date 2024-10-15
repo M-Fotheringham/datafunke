@@ -14,3 +14,5 @@ Requires-Dist: holoviews
 Requires-Dist: datashader
 Requires-Dist: colorcet
 Requires-Dist: scipy
+Requires-Dist: lifelines
+Requires-Dist: statsmodels

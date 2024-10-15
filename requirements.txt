@@ -6,3 +6,5 @@ geopandas
 holoviews
 datashader
 colorcet
+lifelines
+statsmodels

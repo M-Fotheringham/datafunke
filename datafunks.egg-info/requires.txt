@@ -7,3 +7,5 @@ holoviews
 datashader
 colorcet
 scipy
+lifelines
+statsmodels

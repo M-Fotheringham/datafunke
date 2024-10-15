@@ -17,6 +17,7 @@ def get_cell_counts(
     excl_ln=False,
     t_hist_step=None,
     altdb=None,
+    t_hist_type=None,
 ):
 
     # Preprocess inputs ========================
@@ -46,7 +47,7 @@ def get_cell_counts(
 
     # Dynamic sql ==========================================================
     pheno_sql, tdist_sql, rdist_sql, ln_sql, t_hist_sql, group_sql = dynamic_sql(
-        phenos, tdist_filter, rdist_filter, all_reg, excl_ln, t_hist_step
+        phenos, tdist_filter, rdist_filter, all_reg, excl_ln, t_hist_step, t_hist_type
     )
 
     # Query based on filters
@@ -70,6 +71,8 @@ def get_cell_counts(
     """
     cells = database.query(sql)
     # =======================================================================
+
+    print(cells["tdist_bin"].max())
 
     # Add 0'd row for phenos with no counts
     if t_hist_step is None:
@@ -103,7 +106,7 @@ def get_cell_counts(
         # Group cells to identify range of tdist and missing bins
         grouped = cells.groupby(["sampleid", "phenotype", "exprphenotype"])
         # Get total range of tdist from all cells
-        tdist_total = cells["tdist_microns"].unique()
+        tdist_total = cells["tdist_bin"].unique()
         # Calculate the anticipated number of bins from overall range
         bins = np.arange(
             tdist_total.min(), tdist_total.max() + t_hist_step, t_hist_step
@@ -113,19 +116,19 @@ def get_cell_counts(
         miss_list = []
         for name, group in grouped:
             # Get tdist bins for given group
-            tdist = group["tdist_microns"].values
+            tdist = group["tdist_bin"].values
             # List anticipated bins not found in group tdist bins
             missing_bins = [b.astype(int) for b in bins if b not in tdist]
 
             # Add missing tdist bins and group labels to a df
-            missing_rows = pd.DataFrame({"tdist_microns": missing_bins})
+            missing_rows = pd.DataFrame({"tdist_bin": missing_bins})
             missing_rows["c"] = 0
             missing_rows["sampleid"] = name[0]
             missing_rows["phenotype"] = name[1]
             missing_rows["exprphenotype"] = name[2]
             # Reorder columns, in case this matters (shouldn't)
             missing_rows = missing_rows[
-                ["sampleid", "phenotype", "exprphenotype", "tdist_microns", "c"]
+                ["sampleid", "phenotype", "exprphenotype", "tdist_bin", "c"]
             ]
 
             miss_list.append(missing_rows)
@@ -136,11 +139,11 @@ def get_cell_counts(
             cells = pd.concat([cells, *miss_list]).reset_index(drop=True)
 
             # Convert to int (should already be)
-            cells["tdist_microns"] = cells["tdist_microns"].astype(int)
+            cells["tdist_bin"] = cells["tdist_bin"].astype(int)
 
     # Get a row for the total cell inclusive of all exprphenotypes
     if t_hist_step is not None:
-        cells = exprTotal(cells, ["sampleid", "phenotype", "tdist_microns"])
+        cells = exprTotal(cells, ["sampleid", "phenotype", "tdist_bin"])
     else:
         cells = exprTotal(cells, ["sampleid", "phenotype"])
 

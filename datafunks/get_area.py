@@ -14,6 +14,7 @@ def get_area(
     excl_ln=False,
     t_hist_step=None,
     altdb=None,
+    t_hist_type=None,
 ):
 
     # Preprocess inputs ========================
@@ -42,7 +43,7 @@ def get_area(
 
     # Dynamic sql ==========================================================
     phenos, tdist_sql, rdist_sql, ln_sql, t_hist_sql, group_sql = dynamic_sql(
-        phenos, tdist_filter, rdist_filter, all_reg, excl_ln, t_hist_step
+        phenos, tdist_filter, rdist_filter, all_reg, excl_ln, t_hist_step, t_hist_type
     )
     # =======================================================================
 
@@ -66,7 +67,7 @@ def get_area(
     area = database.query(sql)
 
     if t_hist_step is not None:
-        area = area.sort_values(["sampleid", "tdist_microns"]).reset_index(drop=True)
+        area = area.sort_values(["sampleid", "tdist_bin"]).reset_index(drop=True)
     else:
         area = area.sort_values("sampleid").reset_index(drop=True)
 

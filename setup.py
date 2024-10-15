@@ -19,6 +19,8 @@ setup(
         "datashader",
         "colorcet",
         "scipy",
+        "lifelines",
+        "statsmodels"
     ],
     python_requires="<3.11",  # Should be 3.10 to work with astropathdb
     entry_points={

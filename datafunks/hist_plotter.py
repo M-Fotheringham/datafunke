@@ -56,18 +56,9 @@ def hist_plotter(
             }
     elif colour is None:
         colour = "lightsteelblue"
-
-    if df is not None:
-        df = df.copy()
-        if expr:
-            df["phenotype"] = df["phenotype"] + "_" + df["exprphenotype"].astype(str)
-        for p in pheno:
-            d = df[df["phenotype"] == p]
-            plt.plot(d[x], d[y], color=colour[p], label=p)
-    else:
-        plt.plot(x, y, color=colour)
     # =================================================
 
+    # Print then clear fig to apply aesthetic changes
     # Graphpad-ify
     plt.rcParams["figure.dpi"] = 900
     plt.rcParams["font.family"] = ["Arial"]
@@ -80,6 +71,16 @@ def hist_plotter(
     plt.gca().spines["left"].set_linewidth(1.75)
     plt.gca().spines["bottom"].set_linewidth(1.75)
     plt.gca().tick_params(width=1.75)
+
+    if df is not None:
+        df = df.copy()
+        if expr:
+            df["phenotype"] = df["phenotype"] + "_" + df["exprphenotype"].astype(str)
+        for p in pheno:
+            d = df[df["phenotype"] == p]
+            plt.plot(d[x], d[y], color=colour[p], label=p)
+    else:
+        plt.plot(x, y, color=colour)
 
     # Get height of plot from y ticks
     # first and last ticks are beyond plot range
@@ -98,7 +99,8 @@ def hist_plotter(
             )
         else:
             plt.xlim(limits[0], limits[1])
-    plt.ylim(0, max_y_tick)
+    else:
+        plt.ylim(0, max_y_tick)
 
     # Tumour boundary line
     plt.axvline(x=0, color="green", linewidth=1.5)

@@ -23,6 +23,7 @@ def tdistogram(
     altdb=None,
     plot=True,
     prop=False,
+    t_hist_type=None,
 ):
 
     print("Counting cells...")
@@ -36,7 +37,10 @@ def tdistogram(
         excl_ln,
         t_hist_step,
         altdb=altdb,
+        t_hist_type=t_hist_type,
     )
+    
+    print(cells["tdist_bin"].max())
 
     # # Cells from samples without an annotation are assigned a dist of 32700+, exclude
     # cells = cells[cells["dist_bin_um"] != 16350]
@@ -52,18 +56,21 @@ def tdistogram(
         excl_ln,
         t_hist_step,
         altdb=altdb,
+        t_hist_type=t_hist_type,
     )
 
-    data = pd.merge(cells, areas, on=["sampleid", "tdist_microns"], how="left")
+    print(areas["tdist_bin"].max())
+
+    data = pd.merge(cells, areas, on=["sampleid", "tdist_bin"], how="left")
+    
+    print(data[data["area_mm"].isna()]["tdist_bin"].unique())
 
     # Drop rows without area (extra rows can be added during get_cell_counts)
     data = data[~data["area_mm"].isna()]
 
     if not samplewise:
         data = (
-            data.groupby(["phenotype", "exprphenotype", "tdist_microns"])[
-                ["c", "area_mm"]
-            ]
+            data.groupby(["phenotype", "exprphenotype", "tdist_bin"])[["c", "area_mm"]]
             .sum()
             .reset_index()
         )
@@ -72,17 +79,19 @@ def tdistogram(
 
     # Exclude bins with 0.4mm^2 or less area
     data = data[data["area_mm"] > 0.4**2].reset_index(drop=True)
+    
+    print(data["tdist_bin"].max())
 
     if prop:
         if samplewise:
             # Calculate proportion of each phenotype per sample
-            data["grouped_c"] = data.groupby(["sampleid", "tdist_microns"])[
-                "c"
-            ].transform(lambda x: x[data["exprphenotype"] != "Total"].sum())
+            data["grouped_c"] = data.groupby(["sampleid", "tdist_bin"])["c"].transform(
+                lambda x: x[data["exprphenotype"] != "Total"].sum()
+            )
             data["prop"] = data["c"] / data["grouped_c"]
         else:
             # Calculate proportion of each phenotype per sample
-            data["grouped_c"] = data.groupby("tdist_microns")["c"].transform(
+            data["grouped_c"] = data.groupby("tdist_bin")["c"].transform(
                 lambda x: x[data["exprphenotype"] != "Total"].sum()
             )
             data["prop"] = data["c"] / data["grouped_c"]
@@ -116,7 +125,7 @@ def tdistogram(
 
                 smoothed = []
                 for name, group in grouped:
-                    tdist = group["tdist_microns"].values
+                    tdist = group["tdist_bin"].values
                     density = group["prob"].values
 
                     loess_result = lowess(density, tdist, frac=0.15)
@@ -129,13 +138,13 @@ def tdistogram(
                         {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
                     )
 
-                    smoothed_df["tdist_microns"] = (
+                    smoothed_df["tdist_bin"] = (
                         np.floor(smoothed_df["tdist_smoothed"] / t_hist_step)
                         * t_hist_step
                     ).astype(int)
 
                     smoothed_df = pd.merge(
-                        group, smoothed_df, on="tdist_microns", how="right"
+                        group, smoothed_df, on="tdist_bin", how="right"
                     )
 
                     smoothed.append(smoothed_df)
@@ -166,7 +175,7 @@ def tdistogram(
 
                 smoothed = []
                 for name, group in grouped:
-                    tdist = group["tdist_microns"].values
+                    tdist = group["tdist_bin"].values
                     density = group["prob"].values
 
                     loess_result = lowess(density, tdist, frac=0.15)
@@ -179,13 +188,13 @@ def tdistogram(
                         {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
                     )
 
-                    smoothed_df["tdist_microns"] = (
+                    smoothed_df["tdist_bin"] = (
                         np.floor(smoothed_df["tdist_smoothed"] / t_hist_step)
                         * t_hist_step
                     ).astype(int)
 
                     smoothed_df = pd.merge(
-                        group, smoothed_df, on="tdist_microns", how="right"
+                        group, smoothed_df, on="tdist_bin", how="right"
                     )
 
                     smoothed.append(smoothed_df)
@@ -200,7 +209,7 @@ def tdistogram(
 
                 smoothed = []
                 for name, group in grouped:
-                    tdist = group["tdist_microns"].values
+                    tdist = group["tdist_bin"].values
 
                     if prop:
                         y_vals = group["prop"].values
@@ -217,13 +226,13 @@ def tdistogram(
                         {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
                     )
 
-                    smoothed_df["tdist_microns"] = (
+                    smoothed_df["tdist_bin"] = (
                         np.floor(smoothed_df["tdist_smoothed"] / t_hist_step)
                         * t_hist_step
                     ).astype(int)
 
                     smoothed_df = pd.merge(
-                        group, smoothed_df, on="tdist_microns", how="right"
+                        group, smoothed_df, on="tdist_bin", how="right"
                     )
 
                     smoothed.append(smoothed_df)
@@ -235,7 +244,7 @@ def tdistogram(
 
                 smoothed = []
                 for name, group in grouped:
-                    tdist = group["tdist_microns"].values
+                    tdist = group["tdist_bin"].values
 
                     if prop:
                         y_vals = group["prop"].values
@@ -252,13 +261,13 @@ def tdistogram(
                         {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
                     )
 
-                    smoothed_df["tdist_microns"] = (
+                    smoothed_df["tdist_bin"] = (
                         np.floor(smoothed_df["tdist_smoothed"] / t_hist_step)
                         * t_hist_step
                     ).astype(int)
 
                     smoothed_df = pd.merge(
-                        group, smoothed_df, on="tdist_microns", how="right"
+                        group, smoothed_df, on="tdist_bin", how="right"
                     )
 
                     smoothed.append(smoothed_df)
