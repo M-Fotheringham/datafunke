@@ -1,8 +1,11 @@
 # datafunke
 ![datafunke](./docs/_figs/datafunks_crop.png)
-[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
 
 Get *funke* with data analysis.
+
+<br>
+
+[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
 
 ## Installation
 Open a command prompt and clone the repository locally with: <br>
