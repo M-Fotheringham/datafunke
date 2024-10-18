@@ -75,7 +75,9 @@ def hist_plotter(
     if df is not None:
         df = df.copy()
         if expr:
-            df["phenotype"] = df["phenotype"] + "_" + df["exprphenotype"].astype(str)
+            df["phenotype"] = (
+                df["phenotype"] + "_" + df["exprphenotype"].astype(str)
+            )
         for p in pheno:
             d = df[df["phenotype"] == p]
             plt.plot(d[x], d[y], color=colour[p], label=p)
@@ -95,7 +97,8 @@ def hist_plotter(
     if limits is not None:
         if not isinstance(limits, tuple):
             print(
-                f"Limits ({limits}) not provided as tuple. Defaulting to full x domain."
+                f"""Limits ({limits}) not provided as tuple.
+                Defaulting to full x domain."""
             )
         else:
             plt.xlim(limits[0], limits[1])
@@ -160,7 +163,9 @@ def hist_plotter(
         plt.ylabel(f"Density (cells/mm\u00b2)")
 
     # labels, colours = zip(*colour.items())
-    plt.legend(bbox_to_anchor=(1.0, 0.75), loc="center left", title="Cell Phenotype")
+    plt.legend(
+        bbox_to_anchor=(1.0, 0.75), loc="center left", title="Cell Phenotype"
+    )
 
     if save:
         plt.savefig(
