@@ -7,7 +7,7 @@ from .get_clin import get_clin
 from .plot_cells import plot_cells
 from .roc_plotter import auc_grabber, threshold_grabber, roc_plotter
 from .cox_plot import cox_plot
-from .histogrammer import histogrammer
+from .archived.histogrammer import histogrammer
 from .hist_plotter import hist_plotter
 from .scatterplotter import scatterPlotter
 from .get_area import get_area

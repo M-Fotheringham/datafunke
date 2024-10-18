@@ -21,9 +21,12 @@ def histogrammer(
             sampleid = [114]
             database = "wsi02"
             print(
-                f"Sampleid not provided. Defaulting to {sampleid[0]} from {database}."
+                f"""Sampleid not provided.
+                Defaulting to {sampleid[0]} from {database}."""
             )
-        elif not isinstance(sampleid, (list, pd.core.series.Series, np.ndarray)):
+        elif not isinstance(
+            sampleid, (list, pd.core.series.Series, np.ndarray)
+        ):
             sampleid = [sampleid]
         if pheno is None:
             pheno = "CD8"
@@ -35,7 +38,8 @@ def histogrammer(
         anno_col = {"tumor": "tdist", "regression": "rdist"}[anno]
     else:
         print(
-            f"Provided anno is invalid or has no dist precomputed distances in celltag table. Defaulting to tumor."
+            """Provided anno is invalid or has no dist
+            precomputed distances in celltag table. Defaulting to tumor."""
         )
         anno_col = "tdist"
 
@@ -49,25 +53,31 @@ def histogrammer(
     db = AstroDB(database=database)
 
     sql = f"""
-    select ct.sampleid, p.phenotype, ct.exprphenotype, FLOOR(ct.{anno_col} / {bin_width})*{bin_width}/2 dist_bin_um, COUNT(*) c
+    select ct.sampleid, p.phenotype, ct.exprphenotype,
+        FLOOR(ct.{anno_col} / {bin_width})*{bin_width}/2 dist_bin_um,
+        COUNT(*) c
     from dbo.celltag ct
     JOIN dbo.phenotype p on ct.ptype = p.ptype
-    LEFT JOIN dbo.annotations ln on ct.sampleid = ln.sampleid and ln.lname = 'lymph node'
+    LEFT JOIN dbo.annotations ln on ct.sampleid = ln.sampleid
+        and ln.lname = 'lymph node'
     where p.phenotype = '{pheno}'
     and ct.sampleid in ({",".join(map(str, sampleid))})
     {ln_sql}
-    GROUP BY ct.sampleid, p.phenotype, ct.exprphenotype, FLOOR(ct.{anno_col} / {bin_width})*{bin_width}/2
+    GROUP BY ct.sampleid, p.phenotype, ct.exprphenotype,
+        FLOOR(ct.{anno_col} / {bin_width})*{bin_width}/2
     """
     cells = db.query(sql)
 
     # Divided dist_bin by 2 to convert from pixels to um
 
-    # Cells from samples without an annotation are assigned a dist of 32700+, exclude
+    # Cells are assigned a dist of 32700+ in absence of annotation, exclude
     cells = cells[cells["dist_bin_um"] != 16350]
 
     # Get a row for the total cell inclusive of all exprphenotypes
     total = (
-        cells.groupby(["sampleid", "phenotype", "dist_bin_um"], as_index=False)["c"]
+        cells.groupby(["sampleid", "phenotype", "dist_bin_um"], as_index=False)[
+            "c"
+        ]
         .sum()
         .reset_index(drop=True)
     )
@@ -82,7 +92,9 @@ def histogrammer(
                 ["sampleid", "phenotype", "exprphenotype"]
             )["c"].transform("sum")
             bins = (
-                bins.groupby(["phenotype", "exprphenotype", "dist_bin_um"])["norm_c"]
+                bins.groupby(["phenotype", "exprphenotype", "dist_bin_um"])[
+                    "norm_c"
+                ]
                 .mean()
                 .reset_index()
             )
@@ -92,8 +104,8 @@ def histogrammer(
                 .sum()
                 .reset_index()
             )
-            bins["prob"] = bins["c"] / bins.groupby(["phenotype", "exprphenotype"])[
-                "c"
-            ].transform("sum")
+            bins["prob"] = bins["c"] / bins.groupby(
+                ["phenotype", "exprphenotype"]
+            )["c"].transform("sum")
 
     return bins
