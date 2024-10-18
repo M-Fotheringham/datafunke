@@ -46,8 +46,16 @@ def get_cell_counts(
     # ===========================================
 
     # Dynamic sql ==========================================================
-    pheno_sql, tdist_sql, rdist_sql, ln_sql, t_hist_sql, group_sql = dynamic_sql(
-        phenos, tdist_filter, rdist_filter, all_reg, excl_ln, t_hist_step, t_hist_type
+    pheno_sql, tdist_sql, rdist_sql, ln_sql, t_hist_sql, group_sql = (
+        dynamic_sql(
+            phenos,
+            tdist_filter,
+            rdist_filter,
+            all_reg,
+            excl_ln,
+            t_hist_step,
+            t_hist_type,
+        )
     )
 
     # Query based on filters
@@ -67,12 +75,10 @@ def get_cell_counts(
     {ln_sql}
     {pheno_sql}
     group by c.sampleid, p.phenotype, c.exprphenotype{group_sql}
-    order by c.sampleid, p.phenotype, c.exprphenotype{group_sql}   
+    order by c.sampleid, p.phenotype, c.exprphenotype{group_sql}
     """
     cells = database.query(sql)
     # =======================================================================
-
-    print(cells["tdist_bin"].max())
 
     # Add 0'd row for phenos with no counts
     if t_hist_step is None:

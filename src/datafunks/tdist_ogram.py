@@ -2,10 +2,9 @@
 
 import pandas as pd
 import numpy as np
+from statsmodels.nonparametric.smoothers_lowess import lowess
 from .get_area import get_area
 from .get_cell_counts import get_cell_counts
-import matplotlib.pyplot as plt
-from statsmodels.nonparametric.smoothers_lowess import lowess
 
 
 def tdistogram(
@@ -21,10 +20,10 @@ def tdistogram(
     samplewise=True,
     smoothed=True,
     altdb=None,
-    plot=True,
     prop=False,
     t_hist_type=None,
 ):
+    """Builds histogram of cell counts by tdist."""
 
     print("Counting cells...")
     cells = get_cell_counts(
@@ -39,10 +38,8 @@ def tdistogram(
         altdb=altdb,
         t_hist_type=t_hist_type,
     )
-    
-    print(cells["tdist_bin"].max())
 
-    # # Cells from samples without an annotation are assigned a dist of 32700+, exclude
+    # Cells are assigned a dist of 32700+ when annotation absent, exclude
     # cells = cells[cells["dist_bin_um"] != 16350]
 
     print("Counting area...")
@@ -59,18 +56,16 @@ def tdistogram(
         t_hist_type=t_hist_type,
     )
 
-    print(areas["tdist_bin"].max())
-
     data = pd.merge(cells, areas, on=["sampleid", "tdist_bin"], how="left")
-    
-    print(data[data["area_mm"].isna()]["tdist_bin"].unique())
 
     # Drop rows without area (extra rows can be added during get_cell_counts)
     data = data[~data["area_mm"].isna()]
 
     if not samplewise:
         data = (
-            data.groupby(["phenotype", "exprphenotype", "tdist_bin"])[["c", "area_mm"]]
+            data.groupby(["phenotype", "exprphenotype", "tdist_bin"])[
+                ["c", "area_mm"]
+            ]
             .sum()
             .reset_index()
         )
@@ -79,15 +74,13 @@ def tdistogram(
 
     # Exclude bins with 0.4mm^2 or less area
     data = data[data["area_mm"] > 0.4**2].reset_index(drop=True)
-    
-    print(data["tdist_bin"].max())
 
     if prop:
         if samplewise:
             # Calculate proportion of each phenotype per sample
-            data["grouped_c"] = data.groupby(["sampleid", "tdist_bin"])["c"].transform(
-                lambda x: x[data["exprphenotype"] != "Total"].sum()
-            )
+            data["grouped_c"] = data.groupby(["sampleid", "tdist_bin"])[
+                "c"
+            ].transform(lambda x: x[data["exprphenotype"] != "Total"].sum())
             data["prop"] = data["c"] / data["grouped_c"]
         else:
             # Calculate proportion of each phenotype per sample
@@ -100,11 +93,13 @@ def tdistogram(
 
         if samplewise:
             # Calculate overall density per expr, per pheno, per sample
-            grouped_den = data.groupby(["sampleid", "phenotype", "exprphenotype"])[
-                ["c", "area_mm"]
-            ].sum()
+            grouped_den = data.groupby(
+                ["sampleid", "phenotype", "exprphenotype"]
+            )[["c", "area_mm"]].sum()
 
-            grouped_den["grouped_den"] = grouped_den["c"] / grouped_den["area_mm"]
+            grouped_den["grouped_den"] = (
+                grouped_den["c"] / grouped_den["area_mm"]
+            )
 
             grouped_den = grouped_den["grouped_den"].reset_index()
 
@@ -121,7 +116,9 @@ def tdistogram(
             data["prob"] = data["prob"] / data["prob"].sum()
 
             if smoothed:
-                grouped = data.groupby(["sampleid", "phenotype", "exprphenotype"])
+                grouped = data.groupby(
+                    ["sampleid", "phenotype", "exprphenotype"]
+                )
 
                 smoothed = []
                 for name, group in grouped:
@@ -132,7 +129,9 @@ def tdistogram(
 
                     xl = np.linspace(min(tdist), max(tdist), 1000)
 
-                    smoothed_y = np.interp(xl, loess_result[:, 0], loess_result[:, 1])
+                    smoothed_y = np.interp(
+                        xl, loess_result[:, 0], loess_result[:, 1]
+                    )
 
                     smoothed_df = pd.DataFrame(
                         {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
@@ -157,7 +156,9 @@ def tdistogram(
                 ["c", "area_mm"]
             ].sum()
 
-            grouped_den["grouped_den"] = grouped_den["c"] / grouped_den["area_mm"]
+            grouped_den["grouped_den"] = (
+                grouped_den["c"] / grouped_den["area_mm"]
+            )
 
             grouped_den = grouped_den["grouped_den"].reset_index()
 
@@ -182,7 +183,9 @@ def tdistogram(
 
                     xl = np.linspace(min(tdist), max(tdist), 1000)
 
-                    smoothed_y = np.interp(xl, loess_result[:, 0], loess_result[:, 1])
+                    smoothed_y = np.interp(
+                        xl, loess_result[:, 0], loess_result[:, 1]
+                    )
 
                     smoothed_df = pd.DataFrame(
                         {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
@@ -205,7 +208,9 @@ def tdistogram(
     else:
         if smoothed:
             if samplewise:
-                grouped = data.groupby(["sampleid", "phenotype", "exprphenotype"])
+                grouped = data.groupby(
+                    ["sampleid", "phenotype", "exprphenotype"]
+                )
 
                 smoothed = []
                 for name, group in grouped:
@@ -220,7 +225,9 @@ def tdistogram(
 
                     xl = np.linspace(min(tdist), max(tdist), 1000)
 
-                    smoothed_y = np.interp(xl, loess_result[:, 0], loess_result[:, 1])
+                    smoothed_y = np.interp(
+                        xl, loess_result[:, 0], loess_result[:, 1]
+                    )
 
                     smoothed_df = pd.DataFrame(
                         {"tdist_smoothed": xl, "smoothed_y": smoothed_y}
@@ -255,7 +262,9 @@ def tdistogram(
 
                     xl = np.linspace(min(tdist), max(tdist), 1000)
 
-                    smoothed_y = np.interp(xl, loess_result[:, 0], loess_result[:, 1])
+                    smoothed_y = np.interp(
+                        xl, loess_result[:, 0], loess_result[:, 1]
+                    )
 
                     smoothed_df = pd.DataFrame(
                         {"tdist_smoothed": xl, "smoothed_y": smoothed_y}

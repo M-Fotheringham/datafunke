@@ -1,0 +1,71 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling", "hatch-vcs"]
+
+[project]
+name = "datafunks"
+description = "A collection of scripts to perform basic AstroPath analyses."
+
+authors = [{name = "MF"}]
+maintainers = [{name = "Michael Fotheringham", email = "16mrf6@queensu.ca"}]
+
+dynamic = ["version"]
+
+requires-python = "<3.11"
+
+license = {file = "LICENSE"}
+readme = "README.md"
+
+dependencies = [
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "shapely",
+    "geopandas",
+    "holoviews",
+    "datashader",
+    "colorcet",
+    "scipy",
+    "lifelines",
+    "statsmodels",
+]
+
+[project.optional-dependencies]
+docs = [
+    "ipykernel",
+    "nbsphinx",
+    "pandoc",
+    "py2puml",
+    "pydata-sphinx-theme",
+    "sphinx",
+    "sphinxcontrib-plantuml",
+    "sphinx-autoapi>=3.2",
+    "sphinx-autodoc-typehints",
+    "sphinx-design",
+]
+test = [
+    "black",
+    "flake8",
+    "pylint",
+    "pytest",
+    "pylint-pytest",
+]
+
+[tool.black]
+line-length = 80
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/datafunks"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "_version.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+# For ipynbs- instead of restaring kernel each time
+# %load_ext autoreload
+# %autoreload 2
