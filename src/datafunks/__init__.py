@@ -12,6 +12,6 @@ from .hist_plotter import hist_plotter
 from .scatterplotter import scatterPlotter
 from .get_area import get_area
 from .dynamic_query import dynamic_sql
-from .exprTotal import exprTotal
+from .expr_total import expr_total
 from .get_cell_counts import get_cell_counts
 from .tdist_ogram import tdistogram

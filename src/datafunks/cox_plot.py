@@ -1,7 +1,6 @@
 """Consistently create forest plot for any number of covariates."""
 
 import pandas as pd
-import numpy as np
 from lifelines import CoxPHFitter
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
@@ -17,6 +16,8 @@ def cox_plot(
     multivariable=True,
     cohort_label="None",
 ):
+    """Consistently create forest plot for any number of covariates."""
+
     if not isinstance(variable_cols, list) and variable_cols is not None:
         variable_cols = [variable_cols]
 
@@ -41,9 +42,9 @@ def cox_plot(
         y_labels = []
         for idx, var in enumerate(variable_cols):
             # Drop irrelevant columns and any Nan vals
-            data = cohort[~cohort[[var, outcome_col, event_col]].isna().any(axis=1)][
-                [var, outcome_col, event_col]
-            ]
+            data = cohort[
+                ~cohort[[var, outcome_col, event_col]].isna().any(axis=1)
+            ][[var, outcome_col, event_col]]
             cph = CoxPHFitter()
             cph.fit(df=data, duration_col=outcome_col, event_col=event_col)
 
@@ -63,7 +64,12 @@ def cox_plot(
             )
 
             plt.axvline(
-                x=1, linestyle="--", color="black", alpha=0.90, linewidth=0.5, zorder=0
+                x=1,
+                linestyle="--",
+                color="black",
+                alpha=0.90,
+                linewidth=0.5,
+                zorder=0,
             )
 
             plt.axhline(
@@ -95,7 +101,9 @@ def cox_plot(
         plt.gca().set_yticks([*range(len(variable_cols))], y_labels)
         plt.xlabel("HR (95% CI)")
 
-    res_plot = res[["exp(coef)", "exp(coef) lower 95%", "exp(coef) upper 95%", "p"]]
+    res_plot = res[
+        ["exp(coef)", "exp(coef) lower 95%", "exp(coef) upper 95%", "p"]
+    ]
     res_plot.columns = ["HR", "Lower 95% CI", "Upper 95% CI", "p-value"]
     res_plot = res_plot.round(3)
     res_plot.insert(loc=0, column="Covariate", value=res_plot.index)

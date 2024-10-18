@@ -4,7 +4,7 @@ from astropathdb import AstroDB
 import pandas as pd
 import numpy as np
 from .dynamic_query import dynamic_sql
-from .exprTotal import exprTotal
+from .expr_total import expr_total
 
 
 def get_cell_counts(
@@ -149,8 +149,8 @@ def get_cell_counts(
 
     # Get a row for the total cell inclusive of all exprphenotypes
     if t_hist_step is not None:
-        cells = exprTotal(cells, ["sampleid", "phenotype", "tdist_bin"])
+        cells = expr_total(cells, ["sampleid", "phenotype", "tdist_bin"])
     else:
-        cells = exprTotal(cells, ["sampleid", "phenotype"])
+        cells = expr_total(cells, ["sampleid", "phenotype"])
 
     return cells

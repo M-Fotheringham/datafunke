@@ -1,6 +1,3 @@
-"""This saves some tedious repition in sql queries for common tasks."""
-
-
 def dynamic_sql(
     phenos=None,
     tdist_filter=None,
@@ -10,6 +7,7 @@ def dynamic_sql(
     t_hist_step=None,
     t_hist_type=None,
 ):
+    """This saves some tedious repition in sql queries for common tasks."""
 
     if (t_hist_step is not None) & (t_hist_type != "fractional reg"):
         # convert to pixels
@@ -85,11 +83,13 @@ def dynamic_sql(
     # Bin tdist to create histogram of areas, convert tdist to um
     if t_hist_type == "fractional reg":
         t_hist_sql = f"""
-        floor((tdist/(tdist - rdist))*100/{t_hist_step})*{t_hist_step} tdist_bin,
+        floor((tdist/(tdist - rdist))*100/
+        {t_hist_step})*{t_hist_step} tdist_bin,
         """
-        group_sql = (
-            f""", floor((tdist/(tdist - rdist))*100/{t_hist_step})*{t_hist_step}"""
-        )
+        group_sql = f"""
+                     , floor((tdist/(tdist - rdist))*100/
+                     {t_hist_step})*{t_hist_step}
+                    """
     elif t_hist_step is not None:
         t_hist_sql = f"""
         floor(tdist/{t_hist_step})*{t_hist_step}/2 tdist_bin,
