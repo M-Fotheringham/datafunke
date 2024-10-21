@@ -7,8 +7,18 @@ def dynamic_sql(
     t_hist_step=None,
     t_hist_type=None,
 ):
-    """This saves some tedious repition in sql queries for common tasks."""
+    """This saves some tedious repition in sql queries for common tasks.
+    pheno: str or list. defaults to all
+    tdist_filter: (outer, inner) bounds in microns; outer bound if not tuple
+    rdist_filter: (outer, inner) bounds in microns; outer bound if not tuple
+    all_reg: defaults to False
+    excl_ln: defaults to False
+    t_hist_step: defaults to 50 micron bins. Setting to None gets all cells
+    t_hist_type: input I was workshopping to accommodate percent distance bins
+    """
 
+    # Translate function inputs into SQL snippets to sub into full query
+    # ========================================================================
     if (t_hist_step is not None) & (t_hist_type != "fractional reg"):
         # convert to pixels
         t_hist_step = t_hist_step * 2
@@ -98,5 +108,7 @@ def dynamic_sql(
     else:
         t_hist_sql = ""
         group_sql = ""
+
+    # ======================================================================
 
     return pheno_sql, tdist_sql, rdist_sql, ln_sql, t_hist_sql, group_sql

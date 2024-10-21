@@ -16,7 +16,18 @@ def get_area(
     altdb=None,
     t_hist_type=None,
 ):
-    """Computes tissue area from the predefined randomcell density."""
+    """Computes tissue area from the predefined randomcell density.
+    sampleid: int or list. defaults to all in db
+    pheno: str or list. defaults to all
+    database: AstroDB object, defaults to AstroDB(database='wsi02')
+    tdist_filter: (outer, inner) bounds in microns; outer bound if not tuple
+    rdist_filter: (outer, inner) bounds in microns; outer bound if not tuple
+    all_reg: defaults to False
+    excl_ln: defaults to False
+    t_hist_step: defaults to 50 micron bins. Setting to None gets all cells
+    altdb: for referencing datatbases not directly accessible (e.g. wsi14)
+    t_hist_type: input I was workshopping to accommodate percent distance bins
+    """
 
     # Preprocess inputs ========================
     if sampleid is None:
@@ -52,7 +63,6 @@ def get_area(
         t_hist_step,
         t_hist_type,
     )
-    # =======================================================================
 
     # Normalization Unit Ratio to convert randomcell density to area
     nur = 8000.0000 / (1.004 * 1.344)
@@ -72,6 +82,8 @@ def get_area(
     group by c.sampleid{group_sql}
     """
     area = database.query(sql)
+
+    # =======================================================================
 
     if t_hist_step is not None:
         area = area.sort_values(["sampleid", "tdist_bin"]).reset_index(

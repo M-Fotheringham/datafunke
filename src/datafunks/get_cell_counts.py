@@ -19,6 +19,18 @@ def get_cell_counts(
     altdb=None,
     t_hist_type=None,
 ):
+    """
+    sampleid: int or list. defaults to all in db
+    pheno: str or list. defaults to all
+    database: AstroDB object, defaults to AstroDB(database='wsi02')
+    tdist_filter: (outer, inner) bounds in microns; outer bound if not tuple
+    rdist_filter: (outer, inner) bounds in microns; outer bound if not tuple
+    all_reg: defaults to False
+    excl_ln: defaults to False
+    t_hist_step: defaults to 50 micron bins. Setting to None gets all cells
+    altdb: for referencing datatbases not directly accessible (e.g. wsi14)
+    t_hist_type: input I was workshopping to accommodate percent distance bins
+    """
 
     # Preprocess inputs ========================
     if sampleid is None:
@@ -45,7 +57,7 @@ def get_cell_counts(
         altdb = f"{altdb}."
     # ===========================================
 
-    # Dynamic sql ==========================================================
+    # "Dynamic" sql ==========================================================
     pheno_sql, tdist_sql, rdist_sql, ln_sql, t_hist_sql, group_sql = (
         dynamic_sql(
             phenos,
@@ -80,6 +92,7 @@ def get_cell_counts(
     cells = database.query(sql)
     # =======================================================================
 
+    # Post-process queried data =============================================
     # Add 0'd row for phenos with no counts
     if t_hist_step is None:
         # Group cells to identify missing exprphenotypes
@@ -152,5 +165,7 @@ def get_cell_counts(
         cells = expr_total(cells, ["sampleid", "phenotype", "tdist_bin"])
     else:
         cells = expr_total(cells, ["sampleid", "phenotype"])
+
+    # =======================================================================
 
     return cells

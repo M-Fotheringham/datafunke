@@ -12,7 +12,11 @@ def get_cell_coords(
     reg_only=False,
     all_reg=False,
 ):
-    """Get cell coordinates for a specified phenotype and analysis boundary"""
+    """Get cell coordinates for a specified phenotype and analysis boundary
+    sampleid: int or list. defaults to all in db
+    pheno: str or list. defaults to all
+    database
+    """
 
     if sampleid is None or pheno is None:
         if sampleid is None:
