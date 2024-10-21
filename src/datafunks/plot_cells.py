@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 import geopandas as gpd
 from shapely.geometry import Point
 import colorcet as cc
-import datashader as ds
 import holoviews as hv
 from holoviews.element.tiles import EsriImagery
-from holoviews.operation.datashader import datashade, rasterize
+from holoviews.operation.datashader import rasterize
+
+# , datashade
+# import datashader as ds
 
 hv.extension("bokeh")
 
@@ -32,7 +34,7 @@ def plot_cells(
 
         db = AstroDB(database=database)
 
-        sql = f""" 
+        sql = f"""
         select ct.px, ct.py
         from dbo.celltag ct, dbo.phenotype p
         where ct.ptype = p.ptype
@@ -50,7 +52,8 @@ def plot_cells(
 
     if not any([mpl, geo, shader]):
         print(
-            "Select a plotting method as True from: mpl, geo, or shader. Defaulting to mpl."
+            """Select a plotting method as True from: mpl, geo, or shader.
+            Defaulting to mpl."""
         )
         mpl = True
 
@@ -98,7 +101,8 @@ def plot_cells(
             alpha=0.5, width=900, height=480, bgcolor="black"
         )
         points = hv.Points(coord_df, ["x", "y"])
-        # cells_plot = datashade(points, x_sampling=50, y_sampling=50, cmap=cc.fire, width=900, height=480)
+        # cells_plot = datashade(points, x_sampling=50, y_sampling=50,
+        # cmap=cc.fire, width=900, height=480)
         ropts = dict(
             tools=["hover"],
             colorbar=True,
@@ -106,7 +110,9 @@ def plot_cells(
             cmap=cc.fire,
             cnorm="linear",
         )
-        cells_plot = rasterize(points, x_sampling=200, y_sampling=200).opts(**ropts)
+        cells_plot = rasterize(points, x_sampling=200, y_sampling=200).opts(
+            **ropts
+        )
 
         # cvs = ds.Canvas(plot_width=900, plot_height=480)
         # agg = cvs.points(coord_df, "x", "y")
@@ -115,6 +121,8 @@ def plot_cells(
         plotted = map_tiles * cells_plot
 
         if save_label:
-            hv.save(plotted, f"../Data/{save_label}_sampleid_{sample}_{pheno}.html")
+            hv.save(
+                plotted, f"../Data/{save_label}_sampleid_{sample}_{pheno}.html"
+            )
 
         return plotted

@@ -15,9 +15,9 @@ def threshold_grabber(thresh_vals, outcome_vals, true_labels=None):
     # Label outcome as High or Low according to median by default
     if true_labels is None:
         outcome_threshold = outcome_vals.median()
-    true_labels = outcome_vals.apply(
-        lambda x: "High" if x >= outcome_threshold else "Low"
-    )
+        true_labels = outcome_vals.apply(
+            lambda x: "High" if x >= outcome_threshold else "Low"
+        )
 
     # Combine values into df for easy sorting
     df = (
@@ -50,12 +50,12 @@ def threshold_grabber(thresh_vals, outcome_vals, true_labels=None):
     fpr_list = []
     tpr_list = []
     for t in thresholds:
-        fpr = len(df[(df["thresh_vals"] >= t) & (df["true_labels"] == "Low")]) / len(
-            df[df["true_labels"] == "Low"]
-        )
-        tpr = len(df[(df["thresh_vals"] >= t) & (df["true_labels"] == "High")]) / len(
-            df[df["true_labels"] == "High"]
-        )
+        fpr = len(
+            df[(df["thresh_vals"] >= t) & (df["true_labels"] == "Low")]
+        ) / len(df[df["true_labels"] == "Low"])
+        tpr = len(
+            df[(df["thresh_vals"] >= t) & (df["true_labels"] == "High")]
+        ) / len(df[df["true_labels"] == "High"])
         fpr_list.append(fpr)
         tpr_list.append(tpr)
 
@@ -107,7 +107,9 @@ def roc_plotter(
     plt.rcParams["figure.dpi"] = 600
 
     # Reference line
-    plt.plot([0, 1], [0, 1], color="gainsboro", linestyle="--", alpha=0.5, zorder=1)
+    plt.plot(
+        [0, 1], [0, 1], color="gainsboro", linestyle="--", alpha=0.5, zorder=1
+    )
 
     plt.scatter(fpr_list, tpr_list, marker="^", color=colour).set_clip_on(False)
 
@@ -124,15 +126,27 @@ def roc_plotter(
         youden_thresh = thresh_df[thresh_df["Youden_idx"] == youden_idx][
             "threshold"
         ].reset_index(drop=True)
-        plt.text(x=0.60, y=0.15, s=f"Youden Index: {round(youden_idx, 3)}", va="center")
+        plt.text(
+            x=0.60,
+            y=0.15,
+            s=f"Youden Index: {round(youden_idx, 3)}",
+            va="center",
+        )
         plt.scatter(0.55, 0.15, marker="^", color="black").set_clip_on(False)
 
         for idx, thresh in enumerate(youden_thresh):
-            # plt.axvline(x=youden_fpr[idx], ymin=0, ymax=youden_tpr[idx], color="black", linestyle="-")
-            # plt.plot([youden_fpr[idx], (youden_fpr[idx]+youden_tpr[idx])/2], [youden_tpr[idx],(youden_fpr[idx]+youden_tpr[idx])/2], c="black", zorder=1)
+            # plt.axvline(x=youden_fpr[idx], ymin=0, ymax=youden_tpr[idx],
+            # color="black", linestyle="-")
+            # plt.plot([youden_fpr[idx], (youden_fpr[idx]+youden_tpr[idx])/2],
+            # [youden_tpr[idx],(youden_fpr[idx]+youden_tpr[idx])/2], c="black",
+            # zorder=1)
             # plt.text(x=0.7, y=0.1, s=f"Youden Index: {round(youden_idx, 3)}")
             plt.scatter(
-                youden_fpr[idx], youden_tpr[idx], marker="^", color="black", zorder=100
+                youden_fpr[idx],
+                youden_tpr[idx],
+                marker="^",
+                color="black",
+                zorder=100,
             ).set_clip_on(False)
 
     plt.xlabel("False Positive Rate (1 - Specificity)")
@@ -155,4 +169,6 @@ def roc_plotter(
     plt.gca().set_aspect("equal")
 
     if save:
-        plt.savefig(f"../Data/ROC_{name}_07.2024.png", dpi=600, transparent=True)
+        plt.savefig(
+            f"../Data/ROC_{name}_07.2024.png", dpi=600, transparent=True
+        )

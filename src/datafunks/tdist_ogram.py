@@ -23,8 +23,27 @@ def tdistogram(
     prop=False,
     t_hist_type=None,
 ):
-    """Builds histogram of cell counts by tdist."""
+    """Builds histogram of cell counts by tdist.
 
+    DISCLAIMER: I didn't pretty this up at all cause it's all gonna have to change in a big way.
+
+    sampleid: defaults to all in the db
+    database: AstroDB object, defaults to AstroDB(database=wsi02)
+    phenos: defaults to all
+    tdist_filter: (outer, inner) bounds in microns; outer bound if not tuple
+    rdist_filter: (outer, inner) bounds in microns; outer bound if not tuple
+    all_reg: defaults to False
+    excl_ln: defaults to False
+    t_hist_step: defaults to 50 micron bins. Setting to None gets all cells
+    prob: defaults to False; if True, format y vals as probability
+    sampleise: defaults to True; calculates y vals and bins per sample
+    smoothed: defaults to True; fits spline to data to smooth y vals (xl=1000)
+    altdb: for referencing datatbases not directly accessible (e.g. wsi14)
+    prop: defaults to False; when True, formats y vals as lineage proportions
+    t_hist_type: input I was workshopping to accommodate percent distance bins
+    """
+
+    # Get cells =============================================================
     print("Counting cells...")
     cells = get_cell_counts(
         sampleid,
@@ -42,6 +61,9 @@ def tdistogram(
     # Cells are assigned a dist of 32700+ when annotation absent, exclude
     # cells = cells[cells["dist_bin_um"] != 16350]
 
+    # =======================================================================
+
+    # Get area ==============================================================
     print("Counting area...")
     areas = get_area(
         sampleid,
@@ -55,6 +77,10 @@ def tdistogram(
         altdb=altdb,
         t_hist_type=t_hist_type,
     )
+
+    # ========================================================================
+
+    # Get density ============================================================
 
     data = pd.merge(cells, areas, on=["sampleid", "tdist_bin"], how="left")
 
@@ -75,6 +101,10 @@ def tdistogram(
     # Exclude bins with 0.4mm^2 or less area
     data = data[data["area_mm"] > 0.4**2].reset_index(drop=True)
 
+    # ========================================================================
+
+    # Get cell lineage proportions, if applicable ============================
+
     if prop:
         if samplewise:
             # Calculate proportion of each phenotype per sample
@@ -88,7 +118,12 @@ def tdistogram(
                 lambda x: x[data["exprphenotype"] != "Total"].sum()
             )
             data["prop"] = data["c"] / data["grouped_c"]
+    # ========================================================================
 
+    # Smoothing, if applicable ==============================================
+    # Reformat, modularize etc
+
+    # Calculate probability, smooth if applicable ====================
     if prob:
 
         if samplewise:
@@ -204,7 +239,7 @@ def tdistogram(
 
                 data = pd.concat(smoothed, ignore_index=True)
 
-    # Reformat, modularize ====================================================
+    # Smoothing non-probability, if applicable ====================
     else:
         if smoothed:
             if samplewise:

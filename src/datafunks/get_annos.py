@@ -1,11 +1,15 @@
-import pandas as pd
+"""Query annotations."""
+
 from astropathdb import AstroDB
-import matplotlib.pyplot as plt
-import geopandas as gpd
-from shapely.geometry import Point, Polygon, MultiPolygon
 
 
-def get_annos(sample=None, annos=None, database=None, shortcut=None, plot=False):
+def get_annos(
+    sample=None,
+    annos=None,
+    database=None,
+    shortcut=None,
+):
+    """Query annotations."""
 
     if sample is None:
         print("Defaulting to all samples.")
@@ -22,7 +26,7 @@ def get_annos(sample=None, annos=None, database=None, shortcut=None, plot=False)
         annos = [annos]
 
     if database is None:
-        print(f"Defaulting to wsi02...")
+        print("Defaulting to wsi02...")
         database = AstroDB(database="wsi02")
 
     if shortcut is None:

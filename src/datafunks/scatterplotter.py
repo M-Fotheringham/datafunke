@@ -25,7 +25,8 @@ def scatterPlotter(
         dropped = df.iloc[x[np.isnan(x)].index, :]["sampleid"].values
         if len(dropped) > 0:
             print(
-                f"The following {len(dropped)} samples are dropped because they are missing x values: {dropped}."
+                f"""The following {len(dropped)} samples are dropped
+                because they are missing x values: {dropped}."""
             )
             y = y[~np.isnan(x)]
             x = x[~np.isnan(x)]
@@ -36,7 +37,8 @@ def scatterPlotter(
     #             y_drop = np.delete(y_drop, idx)
 
     if log2:
-        # Side-step log2(0) error by parsing as -inf and replacing with small value
+        # Side-step log2(0) error by parsing as -inf and replacing
+        # with small value
         with np.errstate(divide="ignore"):
             x = np.log2(x)
             y = np.log2(y)
@@ -46,9 +48,13 @@ def scatterPlotter(
     else:
         log_label = "False"
 
-    if not isinstance(x_label, (tuple, list)) or not isinstance(y_label, (tuple, list)):
+    if not isinstance(x_label, (tuple, list)) or not isinstance(
+        y_label, (tuple, list)
+    ):
         print(
-            "Please provide x, y labels as tuples: (descriptive label, label suffix), ie ('CD8', ' Density (cells/mm\u00b2))."
+            """Please provide x, y labels as tuples:
+            (descriptive label, label suffix),
+            ie ('CD8', ' Density (cells/mm\u00b2))."""
         )
 
     # Scatter plot
@@ -68,7 +74,7 @@ def scatterPlotter(
         else:
             p = round(p, 3)
         r = round(r, 3)
-        r2 = round(r**2, 3)
+        # r2 = round(r**2, 3)
         # model = LinearRegression(fit_intercept=False)
         # model.fit(x, y)
         # slope = model.coef_[0][0]
@@ -90,11 +96,14 @@ def scatterPlotter(
             ha="left",
             va="center",
         )
-        # plt.plot(np.unique(x), np.poly1d(np.polyfit(x, y, 1))(np.unique(x)), c="gainsboro", linestyle="--", linewidth=1, alpha=0.5)
+        # plt.plot(np.unique(x), np.poly1d(np.polyfit(x, y, 1))(np.unique(x)),
+        # c="gainsboro", linestyle="--", linewidth=1, alpha=0.5)
 
     if point_labels:
         # Get sampleids from dataframe using indices from individual arrays
-        point_labs = df.iloc[x.index, :]["sampleid"].reset_index(drop=True).values
+        point_labs = (
+            df.iloc[x.index, :]["sampleid"].reset_index(drop=True).values
+        )
         # Add sampleids to points
         for idx, (xi, yi) in enumerate(zip(x, y)):
             # pending -- offset overlapping points
@@ -123,7 +132,7 @@ def scatterPlotter(
     plt.tight_layout()
 
     plt.savefig(
-        f"../Data/{label}_{x_label[0]}_{y_label[0]}_scatter_log2={log_label}_08.2024.png".replace(
+        f"../Data/{label}_{x_label[0]}_{y_label[0]}_scatter_log2={log_label}_10.2024.png".replace(
             " ", "_"
         ),
         dpi=600,

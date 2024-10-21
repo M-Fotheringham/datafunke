@@ -21,17 +21,22 @@ def hist_plotter(
     df: provide dataframe when plotting multiple phenotypes
     x, y: array-like or names of x and y cols when providing a df
     sample: only for labelling and saving
-    pheno: for labelling and
+    pheno: for labelling and subsetting plot data
     limits: tuple. Defaults to full x domain
-    r: for plotting text
+    colour: optional dict for colour-coding phenotypes
+    r: magic variable for plotting text (will edit aesthetics later)
+    prob: True. Formats y-axis as probability
+    save: True. Sometimes you don't want to save/want to tweak the plot
+    panel: a temp variable for determining which default color dict to use
+    expr: combines lineage and expr phenotype labels to plot separately
     """
 
-    # Preprocess inputs ==============================
+    # Preprocess inputs ====================================================
     if isinstance(pheno, str):
         pheno = [pheno]
 
     # Default colour dict based off wsi02 when multiple phenos provided
-    # To do: add color col to df during query
+    # To do: add color col to df during query to automatically colour-code
     if (colour is None) and (df is not None):
         if panel is None:
             colour = {
@@ -56,10 +61,11 @@ def hist_plotter(
             }
     elif colour is None:
         colour = "lightsteelblue"
-    # =================================================
+    # =======================================================================
 
+    # Graphpad-ify ==========================================================
     # Print then clear fig to apply aesthetic changes
-    # Graphpad-ify
+    # Change to not affect rcparams
     plt.rcParams["figure.dpi"] = 900
     plt.rcParams["font.family"] = ["Arial"]
     plt.rcParams["font.weight"] = "bold"
@@ -71,17 +77,23 @@ def hist_plotter(
     plt.gca().spines["left"].set_linewidth(1.75)
     plt.gca().spines["bottom"].set_linewidth(1.75)
     plt.gca().tick_params(width=1.75)
+    # =======================================================================
 
+    # Plot the data =========================================================
     if df is not None:
         df = df.copy()
-        if expr:
-            df["phenotype"] = df["phenotype"] + "_" + df["exprphenotype"].astype(str)
+        if expr:  # combine lineage and expr to filter/plot as needed
+            df["phenotype"] = (
+                df["phenotype"] + "_" + df["exprphenotype"].astype(str)
+            )
         for p in pheno:
             d = df[df["phenotype"] == p]
             plt.plot(d[x], d[y], color=colour[p], label=p)
     else:
         plt.plot(x, y, color=colour)
+    # =======================================================================
 
+    # Additional plot formatting ============================================
     # Get height of plot from y ticks
     # first and last ticks are beyond plot range
     max_y_tick = plt.yticks()[0][-1]
@@ -95,7 +107,8 @@ def hist_plotter(
     if limits is not None:
         if not isinstance(limits, tuple):
             print(
-                f"Limits ({limits}) not provided as tuple. Defaulting to full x domain."
+                f"""Limits ({limits}) not provided as tuple.
+                Defaulting to full x domain."""
             )
         else:
             plt.xlim(limits[0], limits[1])
@@ -160,7 +173,10 @@ def hist_plotter(
         plt.ylabel(f"Density (cells/mm\u00b2)")
 
     # labels, colours = zip(*colour.items())
-    plt.legend(bbox_to_anchor=(1.0, 0.75), loc="center left", title="Cell Phenotype")
+    plt.legend(
+        bbox_to_anchor=(1.0, 0.75), loc="center left", title="Cell Phenotype"
+    )
+    # =======================================================================
 
     if save:
         plt.savefig(
