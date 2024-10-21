@@ -82,7 +82,13 @@ def tdistogram(
 
     # Get density ============================================================
 
-    data = pd.merge(cells, areas, on=["sampleid", "tdist_bin"], how="left")
+    if t_hist_step is not None:
+
+        data = pd.merge(cells, areas, on=["sampleid", "tdist_bin"], how="left")
+
+    else:
+        data = pd.merge(cells, areas, on="sampleid", how="left")
+        data["tdist_bin"] = "None"
 
     # Drop rows without area (extra rows can be added during get_cell_counts)
     data = data[~data["area_mm"].isna()]
