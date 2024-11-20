@@ -16,6 +16,7 @@ def hist_plotter(
     save=True,
     panel=None,
     expr=False,
+    dpi=900,
 ):
     """
     df: provide dataframe when plotting multiple phenotypes
@@ -66,7 +67,7 @@ def hist_plotter(
     # Graphpad-ify ==========================================================
     # Print then clear fig to apply aesthetic changes
     # Change to not affect rcparams
-    plt.rcParams["figure.dpi"] = 900
+    plt.rcParams["figure.dpi"] = dpi
     plt.rcParams["font.family"] = ["Arial"]
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
@@ -119,43 +120,44 @@ def hist_plotter(
     plt.axvline(x=0, color="green", linewidth=1.5)
 
     # Modify to make dynamic
-    # Tumor/Stroma arrows
-    plt.gca().annotate(
-        "",
-        xy=(-1.8 * r, max_y_tick * 1.025),
-        xytext=(0, max_y_tick * 1.025),
-        arrowprops=dict(arrowstyle="-|>", color="black"),
-        annotation_clip=False,
-    )
-    plt.gca().annotate(
-        "",
-        xy=(1.8 * r, max_y_tick * 1.025),
-        xytext=(0, max_y_tick * 1.025),
-        arrowprops=dict(arrowstyle="-|>", color="black"),
-        annotation_clip=False,
-    )
+    # Tumor/Stroma arrows =================================================
+    # plt.gca().annotate(
+    #     "",
+    #     xy=(-1.8 * r, max_y_tick * 1.025),
+    #     xytext=(0, max_y_tick * 1.025),
+    #     arrowprops=dict(arrowstyle="-|>", color="black"),
+    #     annotation_clip=False,
+    # )
+    # plt.gca().annotate(
+    #     "",
+    #     xy=(1.8 * r, max_y_tick * 1.025),
+    #     xytext=(0, max_y_tick * 1.025),
+    #     arrowprops=dict(arrowstyle="-|>", color="black"),
+    #     annotation_clip=False,
+    # )
 
-    # Tumor/stroma labels
-    plt.text(
-        -r,
-        max_y_tick * 1.05,
-        "Tumor",
-        fontsize=12,
-        fontweight="normal",
-        ha="center",
-        va="center",
-    )
-    plt.text(
-        r,
-        max_y_tick * 1.05,
-        "Stroma",
-        fontsize=12,
-        fontweight="normal",
-        ha="center",
-        va="center",
-    )
-    plt.text(-120, pen_y_tick, "Tumor", rotation=90, ha="center", va="center")
-    plt.text(140, pen_y_tick, "Boundary", rotation=90, ha="center", va="center")
+    # # Tumor/stroma labels
+    # plt.text(
+    #     -r,
+    #     max_y_tick * 1.05,
+    #     "Tumor",
+    #     fontsize=12,
+    #     fontweight="normal",
+    #     ha="center",
+    #     va="center",
+    # )
+    # plt.text(
+    #     r,
+    #     max_y_tick * 1.05,
+    #     "Stroma",
+    #     fontsize=12,
+    #     fontweight="normal",
+    #     ha="center",
+    #     va="center",
+    # )
+    # plt.text(-120, pen_y_tick, "Tumor", rotation=90, ha="center", va="center")
+    # plt.text(140, pen_y_tick, "Boundary", rotation=90, ha="center", va="center")
+    # ========================================================================
 
     # rvt = clin[clin["sampleid"] == int(sample)]["rvt"].to_list()[0]
     # \n(RVT: {rvt})
@@ -181,6 +183,6 @@ def hist_plotter(
     if save:
         plt.savefig(
             f"../Data/{sample}_{pheno[0]}_dist.png",
-            dpi=900,
+            dpi=dpi,
             bbox_inches="tight",
         )

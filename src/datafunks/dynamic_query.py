@@ -93,11 +93,11 @@ def dynamic_sql(
     # Bin tdist to create histogram of areas, convert tdist to um
     if t_hist_type == "fractional reg":
         t_hist_sql = f"""
-        floor((tdist/(tdist - rdist))*100/
+        floor((tdist2/(tdist2 - rdist2))*100/
         {t_hist_step})*{t_hist_step} tdist_bin,
         """
         group_sql = f"""
-                     , floor((tdist/(tdist - rdist))*100/
+                     , floor((tdist2/(tdist2 - rdist2))*100/
                      {t_hist_step})*{t_hist_step}
                     """
     elif t_hist_step is not None:
