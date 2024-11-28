@@ -17,6 +17,7 @@ def hist_plotter(
     panel=None,
     expr=False,
     dpi=900,
+    samplewise=False,
 ):
     """
     df: provide dataframe when plotting multiple phenotypes
@@ -38,30 +39,38 @@ def hist_plotter(
 
     # Default colour dict based off wsi02 when multiple phenos provided
     # To do: add color col to df during query to automatically colour-code
-    if (colour is None) and (df is not None):
-        if panel is None:
-            colour = {
-                "CD8": "yellow",
-                "FoxP3": "red",
-                "FoxP3CD8": "lightsteelblue",
-                "CD163": "magenta",
-                "Tumor": "orange",
-                "Other": "blue",
-                "CD79a": "lime",
-                "ERG": "yellow",
-                "CD3": "red",
-            }
-        elif panel == "tbet":
-            colour = {
-                "Gzmb": "lime",
-                "Lag3": "yellow",
-                "Eomes": "red",
-                "PD1": "orange",
-                "Tbet": "lightblue",
-                "CD8": "purple",
-            }
-    elif colour is None:
-        colour = "lightsteelblue"
+    if samplewise:
+        val = round(
+            (sorted(samplewise[1]).index(samplewise[2]) + 1)
+            / len(samplewise[1]),
+            4,
+        )
+        colour = (0, val, val)
+    else:
+        if (colour is None) and (df is not None):
+            if panel is None:
+                colour = {
+                    "CD8": "yellow",
+                    "FoxP3": "red",
+                    "FoxP3CD8": "lightsteelblue",
+                    "CD163": "magenta",
+                    "Tumor": "orange",
+                    "Other": "blue",
+                    "CD79a": "lime",
+                    "ERG": "yellow",
+                    "CD3": "red",
+                }
+            elif panel == "tbet":
+                colour = {
+                    "Gzmb": "lime",
+                    "Lag3": "yellow",
+                    "Eomes": "red",
+                    "PD1": "orange",
+                    "Tbet": "lightblue",
+                    "CD8": "purple",
+                }
+        elif colour is None:
+            colour = "lightsteelblue"
     # =======================================================================
 
     # Graphpad-ify ==========================================================
@@ -87,9 +96,15 @@ def hist_plotter(
             df["phenotype"] = (
                 df["phenotype"] + "_" + df["exprphenotype"].astype(str)
             )
-        for p in pheno:
-            d = df[df["phenotype"] == p]
-            plt.plot(d[x], d[y], color=colour[p], label=p)
+
+        if samplewise:
+            for p in pheno:
+                d = df[df["phenotype"] == p]
+                plt.plot(d[x], d[y], color=colour, label=samplewise[2])
+        else:
+            for p in pheno:
+                d = df[df["phenotype"] == p]
+                plt.plot(d[x], d[y], color=colour[p], label=p)
     else:
         plt.plot(x, y, color=colour)
     # =======================================================================
@@ -174,10 +189,18 @@ def hist_plotter(
     else:
         plt.ylabel(f"Density (cells/mm\u00b2)")
 
-    # labels, colours = zip(*colour.items())
-    plt.legend(
-        bbox_to_anchor=(1.0, 0.75), loc="center left", title="Cell Phenotype"
-    )
+    #
+    if samplewise:
+        plt.legend(
+            bbox_to_anchor=(1.0, 0.75), loc="center left", title="SampleID"
+        )
+    else:
+        # labels, colours = zip(*colour.items())
+        plt.legend(
+            bbox_to_anchor=(1.0, 0.75),
+            loc="center left",
+            title="Cell Phenotype",
+        )
     # =======================================================================
 
     if save:
